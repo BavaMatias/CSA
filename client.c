@@ -4,11 +4,14 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SERVER_IP "192.168.0.28"
+#define SERVER_IP "192.168.1.245"
 #define PORT 5555
 #define BUFFER_SIZE 1024
 
-int main() {
+
+//function to execute command in remote server
+void exec_remote_cmd() {
+    //soket function
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) { perror("socket"); exit(EXIT_FAILURE); }
 
@@ -23,8 +26,8 @@ int main() {
     }
     
     char comando[BUFFER_SIZE];
-
-    // Leer desde stdin de forma segura
+    printf("Ingrese el comando a ejecutar en el equipo remoto\n");
+        // Leer desde stdin de forma segura
     if (fgets(comando, sizeof(comando), stdin) != NULL) {
         // Eliminar el salto de línea que deja fgets
         comando[strcspn(comando, "\n")] = '\0';
@@ -34,7 +37,13 @@ int main() {
     } else {
         perror("Error al leer comando");
     }
+    char respuesta [BUFFER_SIZE];
+    int recibytes;
+    
+    while ((recibytes = recv(sock, respuesta, sizeof(respuesta) - 1, 0)) > 0) {
+        respuesta[recibytes] = '\0';  // cortar el string
+        printf("%s", respuesta);            // mostrar la salida en consola
+    }
 
     close(sock);
-    return 0;
 }
